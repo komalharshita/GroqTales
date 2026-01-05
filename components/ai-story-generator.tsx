@@ -570,8 +570,8 @@ The air crackled with energy as the first shot was fired...`;
                                 key={trait}
                                 onClick={() => toggleTrait(trait)}
                                 className={`px-3 py-1 rounded-md border-2 border-black text-sm font-bold transition-all ${characterTraits.includes(trait)
-                                    ? 'bg-blue-400 text-white'
-                                    : 'bg-white text-black hover:bg-gray-100'
+                                  ? 'bg-blue-400 text-white'
+                                  : 'bg-white text-black hover:bg-gray-100'
                                   }`}
                               >
                                 {trait}
@@ -1188,8 +1188,8 @@ The air crackled with energy as the first shot was fired...`;
                                 key={theme}
                                 onClick={() => toggleTheme(theme.toLowerCase())}
                                 className={`px-3 py-1 rounded-md border-2 border-black text-sm font-bold transition-all ${secondaryThemes.includes(theme.toLowerCase())
-                                    ? 'bg-pink-400 text-white'
-                                    : 'bg-white text-black hover:bg-gray-100'
+                                  ? 'bg-pink-400 text-white'
+                                  : 'bg-white text-black hover:bg-gray-100'
                                   }`}
                               >
                                 {theme}
@@ -1545,8 +1545,8 @@ The air crackled with energy as the first shot was fired...`;
                                   }
                                 }}
                                 className={`px-3 py-1 rounded-md border-2 border-black text-sm font-bold transition-all ${avoidCliches.includes(trope.toLowerCase())
-                                    ? 'bg-red-400 text-white'
-                                    : 'bg-white text-black hover:bg-gray-100'
+                                  ? 'bg-red-400 text-white'
+                                  : 'bg-white text-black hover:bg-gray-100'
                                   }`}
                               >
                                 {trope}
@@ -1586,8 +1586,8 @@ The air crackled with energy as the first shot was fired...`;
                                   }
                                 }}
                                 className={`px-3 py-1 rounded-md border-2 border-black text-sm font-bold transition-all ${includeTropes.includes(trope.toLowerCase())
-                                    ? 'bg-green-400 text-white'
-                                    : 'bg-white text-black hover:bg-gray-100'
+                                  ? 'bg-green-400 text-white'
+                                  : 'bg-white text-black hover:bg-gray-100'
                                   }`}
                               >
                                 {trope}
@@ -1756,7 +1756,7 @@ The air crackled with energy as the first shot was fired...`;
                         <div className="space-y-6">
                           <div className="bg-gray-100 border-4 border-black p-4 rounded-lg inline-block">
                             <p className="font-mono text-sm">
-                              Connected: {truncateAddress(account || '')}
+                              Connected: {truncateAddress(account)}
                             </p>
                           </div>
                           <br />

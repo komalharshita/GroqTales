@@ -149,7 +149,7 @@ export default function WalletConnect() {
               aria-expanded={showDropdown ? 'true' : 'false'}
             >
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              <span>{ensName || truncateAddress(account || '')}</span>
+              <span>{ensName || truncateAddress(account)}</span>
               <ChevronDown className="h-4 w-4" />
             </div>
           </TooltipTrigger>
@@ -180,7 +180,7 @@ export default function WalletConnect() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-black uppercase truncate tracking-tight">
-                  {ensName || truncateAddress(account || '')}
+                  {ensName || truncateAddress(account)}
                 </p>
                 <p className="text-xs font-bold text-primary italic uppercase">{balance} ETH</p>
               </div>
