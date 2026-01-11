@@ -6,6 +6,7 @@
  */
 
 const express = require('express');
+const mongoose = require('mongoose');
 const { ethers } = require('ethers');
 const router = express.Router();
 
@@ -22,9 +23,9 @@ router.get('/', async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const { category, priceRange } = req.query;
 
-    if (!category && !priceRange) {
-      return res.status(400).json({ error: "At least one filter (category or priceRange) must be provided" });
-    }
+    // if (!category && !priceRange) {
+    //   return res.status(400).json({ error: "At least one filter (category or priceRange) must be provided" });
+    // }
 
     // Build filter query
     let nftFilter = {};
@@ -33,6 +34,9 @@ router.get('/', async (req, res) => {
     if (priceRange) {
       const [min, max] = priceRange.split('-').map(Number);
       nftFilter.price = {};
+      if(min !== undefined && isNaN(min) || max !== undefined && isNaN(max)) {
+        return res.status(400).json({ error: "Invalid priceRange format. Use 'min-max' with numeric values." });
+      } 
       if (!isNaN(min)) nftFilter.price.$gte = min;
       if (!isNaN(max)) nftFilter.price.$lte = max;
     }
@@ -94,13 +98,15 @@ router.post('/mint', async (req, res) => {
       return res.status(400).json({ error: "storyId, metadataURI, and metadata are required" });
     }
 
+    if(typeof metadata !== 'object' || Object.keys(metadata).length === 0){
+      return res.status(400).json({ error: "metadata must be a valid JSON object" });
+    }
     // Validate ObjectId format for storyId
     if (!mongoose.Types.ObjectId.isValid(storyId)) {
       return res.status(400).json({ error: "Invalid storyId" });
     }
 
     // Generate unique tokenId (e.g., increment or use a UUID lib - here simple timestamp + random)
-    const tokenId = Date.now().toString() + Math.floor(Math.random() * 1000).toString();
 
     // For now, mintedBy and owner are same (replace with auth user id later)
     // You can default to null or a fixed ObjectId if you want
@@ -117,7 +123,6 @@ router.post('/mint', async (req, res) => {
     const storyHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(story.content));
 
     const nft = new Nft({
-      tokenId,
       storyId,
       storyHash,
       metadataURI,
