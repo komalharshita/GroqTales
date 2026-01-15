@@ -141,7 +141,11 @@ export function AdminLoginModal({ open, onOpenChange }: AdminLoginModalProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           {error && (
-            <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm flex items-center gap-2">
+            <div
+              className="p-3 rounded-md bg-destructive/10 text-destructive text-sm flex items-center gap-2"
+              role="alert"
+              aria-live="polite"
+            >
               <AlertCircle className="h-4 w-4" />
               {error}
             </div>

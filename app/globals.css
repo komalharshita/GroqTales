@@ -14,7 +14,8 @@
   --popover: #ffffff;
   --popover-foreground: #000000;
 
-  --primary: #ff0066;
+  /* AA Compliant Pink (Contrast ~4.5:1 against white) */
+  --primary: #d60055;
   /* Hot Pink - Gen-Z Fave */
   --primary-foreground: #ffffff;
 

@@ -210,7 +210,7 @@ export default function RootLayout({
                 <ClientLayout>
                   <div className="min-h-screen bg-background flex flex-col">
                     <Header />
-                    <main className="container mx-auto px-4 py-6 flex-grow">
+                    <main id="main-content" tabIndex={-1} className="container mx-auto px-4 py-6 flex-grow focus:outline-2 focus:outline-primary">
                       {children}
                     </main>
                     <Footer />

@@ -96,8 +96,9 @@ export function StoryCard({
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-white text-black px-3 py-1.5 rounded-lg text-sm font-medium flex items-center"
+                className="bg-white text-black px-3 py-1.5 rounded-lg text-sm font-medium flex items-center shadow-lg"
                 onClick={handleViewNFT}
+                aria-label={`View NFT: ${story.title}`}
               >
                 View NFT <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
               </motion.button>
@@ -182,14 +183,26 @@ export function StoryCard({
     >
       <Card
         className={cn(
-          'overflow-hidden transition-all duration-200 hover:shadow-md group',
+          'overflow-hidden transition-all duration-200 hover:shadow-md group focus-within:ring-2 focus-within:ring-primary',
           isGrid ? 'h-full' : 'flex gap-4'
         )}
       >
         {hideLink ? (
           <div className="block">{cardContent}</div>
         ) : (
-          <div className="block cursor-pointer" onClick={handleViewNFT}>
+          <div
+            className="block cursor-pointer outline-none"
+            onClick={handleViewNFT}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleViewNFT();
+              }
+            }}
+            aria-label={`View story: ${story.title}`}
+          >
             {cardContent}
           </div>
         )}
