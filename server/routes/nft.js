@@ -106,16 +106,16 @@ router.post('/mint', async (req, res) => {
     const { storyId, metadataURI, metadata, price = 0 } = req.body;
 
     // Basic validation
-    if (!storyId || !metadataURI || !metadata) {
+    if (!storyId || !metadataURI) {
       return res
         .status(400)
-        .json({ error: 'storyId, metadataURI, and metadata are required' });
+        .json({ error: 'storyId and metadataURI are required' });
     }
 
-    if (typeof metadata !== 'object' || Object.keys(metadata).length === 0) {
+    if (metadata && (typeof metadata !== 'object' || Object.keys(metadata).length === 0)) {
       return res
         .status(400)
-        .json({ error: 'metadata must be a valid JSON object' });
+        .json({ error: 'metadata must be a valid JSON object if provided' });
     }
 
     // Validate ObjectId format for storyId

@@ -62,7 +62,7 @@ const NftSchema = new mongoose.Schema(
     },
     metadata: {
       type: Object,
-      required: [true, 'Please provide metadata'],
+      default: null, // Optional: stores raw metadata JSON for IPFS/external use. embeddedMetadata is the validated subset.
     },
     mintedAt: {
       type: Date,
