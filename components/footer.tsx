@@ -43,7 +43,7 @@ export function Footer() {
     },
     {
       icon: <Twitter className="h-5 w-5" />,
-      url: 'https://x.com',
+      url: 'https://x.com/_gear_head_03_',
       label: 'Twitter',
     },
   ];
