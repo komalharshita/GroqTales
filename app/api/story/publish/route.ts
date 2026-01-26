@@ -12,8 +12,11 @@ export async function POST(req: Request) {
     session.startTransaction();
     const { storyId } = await req.json();
 
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const story = await Story.findOneAndUpdate(
-      { _id: storyId, status: 'draft' },
+      { _id: storyId, status: 'draft', authorWallet: session.user.wallet },
       { status: 'publishing' },
       { session, new: true }
     );
