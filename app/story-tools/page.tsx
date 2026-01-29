@@ -1,7 +1,7 @@
 'use client';
 
-import { Loader2, Upload } from 'lucide-react';
-import React, { useState } from 'react';
+import { Loader2, Upload, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 
 import StoryAnalysis from '@/components/story-analysis';
 import { StoryRecommendations } from '@/components/story-recommendations';
@@ -18,8 +18,20 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
+
+const DRAFT_KEY = "groqtales_story_tools_draft_v1";
+
+interface StoryToolsDraft {
+  title: string;
+  genre: string;
+  content: string;
+  updatedAt: number;
+  version: number;
+}
 
 export default function StoryToolsPage() {
+  const { toast } = useToast();
   const [storyId, setStoryId] = useState('demo-story-' + Date.now());
   const [storyTitle, setStoryTitle] = useState('');
   const [storyGenre, setStoryGenre] = useState('');
@@ -27,6 +39,45 @@ export default function StoryToolsPage() {
   const [activeTab, setActiveTab] = useState('editor');
   const [isLoading, setIsLoading] = useState(false);
   const [summaryKeywords, setSummaryKeywords] = useState<string[]>([]);
+
+  // Draft Recovery State
+  const [recoveredDraft, setRecoveredDraft] = useState<StoryToolsDraft | null>(null);
+  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
+
+  // Draft recovery detection on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(DRAFT_KEY);
+    if (!saved) return;
+
+    try {
+      const draft = JSON.parse(saved);
+      if (draft?.content?.trim()) {
+        setRecoveredDraft(draft);
+        setShowRecoveryModal(true);
+      }
+    } catch (error) {
+      console.error('Error parsing draft:', error);
+      localStorage.removeItem(DRAFT_KEY);
+    }
+  }, []);
+
+  // Autosave logic with debounce
+  useEffect(() => {
+    if (!storyContent.trim()) return;
+
+    const timeout = setTimeout(() => {
+      const draft: StoryToolsDraft = {
+        title: storyTitle,
+        genre: storyGenre,
+        content: storyContent,
+        updatedAt: Date.now(),
+        version: 1,
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }, 1000); // autosave every 1s after typing stops
+
+    return () => clearTimeout(timeout);
+  }, [storyTitle, storyGenre, storyContent]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -77,6 +128,67 @@ export default function StoryToolsPage() {
           </TabsList>
 
           <TabsContent value="editor">
+            {/* Draft Recovery Modal */}
+            {showRecoveryModal && recoveredDraft && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white border-4 border-black rounded-2xl p-8 max-w-md w-full shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+                  <div className="text-center space-y-6">
+                    <div className="inline-block bg-yellow-400 p-4 rounded-full border-4 border-black">
+                      <Save className="h-8 w-8 text-black" />
+                    </div>
+
+                    <div>
+                      <h3 className="font-bangers text-2xl mb-2">
+                        DRAFT RECOVERED!
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        We found an unsaved draft from{' '}
+                        {new Date(recoveredDraft.updatedAt).toLocaleString()}.
+                        Would you like to restore it?
+                      </p>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <Button
+                        onClick={() => {
+                          // Restore draft
+                          setStoryTitle(recoveredDraft.title);
+                          setStoryGenre(recoveredDraft.genre);
+                          setStoryContent(recoveredDraft.content);
+                          setShowRecoveryModal(false);
+                          setRecoveredDraft(null);
+                          toast({
+                            title: 'DRAFT RESTORED!',
+                            description: 'Your previous work has been recovered.',
+                            className: 'font-bangers bg-green-400 text-black border-4 border-black',
+                          });
+                        }}
+                        className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bangers px-6 py-3"
+                      >
+                        RESTORE DRAFT
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          // Discard draft
+                          localStorage.removeItem(DRAFT_KEY);
+                          setShowRecoveryModal(false);
+                          setRecoveredDraft(null);
+                          toast({
+                            title: 'DRAFT DISCARDED',
+                            description: 'Starting fresh!',
+                            className: 'font-bangers bg-gray-400 text-black border-4 border-black',
+                          });
+                        }}
+                        className="flex-1 font-bangers border-4 border-black bg-white text-black hover:bg-gray-100"
+                      >
+                        DISCARD
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle>Enter Your Story</CardTitle>
@@ -145,7 +257,11 @@ export default function StoryToolsPage() {
                   </Button>
 
                   <Button
-                    onClick={() => setActiveTab('summary')}
+                    onClick={() => {
+                      // Clear draft when moving to summary (story is "published" for analysis)
+                      localStorage.removeItem(DRAFT_KEY);
+                      setActiveTab('summary');
+                    }}
                     disabled={!storyContent || storyContent.length < 100}
                   >
                     Continue to Summary
