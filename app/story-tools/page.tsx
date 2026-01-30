@@ -73,7 +73,11 @@ export default function StoryToolsPage() {
         updatedAt: Date.now(),
         version: 1,
       };
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      } catch (error) {
+        console.warn('Autosave failed:', error);
+       }
     }, 1000); // autosave every 1s after typing stops
 
     return () => clearTimeout(timeout);
@@ -257,10 +261,8 @@ export default function StoryToolsPage() {
                   </Button>
 
                   <Button
-                    onClick={() => {
-                      // Clear draft when moving to summary (story is "published" for analysis)
-                      localStorage.removeItem(DRAFT_KEY);
-                      setActiveTab('summary');
+               onClick={() => {
+                     setActiveTab('summary');                   
                     }}
                     disabled={!storyContent || storyContent.length < 100}
                   >

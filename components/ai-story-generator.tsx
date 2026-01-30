@@ -70,6 +70,7 @@ interface StoryDraft {
   pacing: string;
   endingType: string;
   plotTwists: string;
+  includeFlashbacks: boolean;
   timePeriod: string;
   locationType: string;
   worldBuildingDepth: string;
@@ -247,6 +248,7 @@ export default function AIStoryGenerator({
         pacing,
         endingType,
         plotTwists,
+        includeFlashbacks,
         timePeriod,
         locationType,
         worldBuildingDepth,
@@ -281,7 +283,11 @@ export default function AIStoryGenerator({
         updatedAt: Date.now(),
         version: 1,
       };
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      } catch (error) {
+        console.warn('Autosave failed:', error);
+      }
     }, 1000); // autosave every 1s after typing stops
 
     return () => clearTimeout(timeout);
@@ -302,6 +308,7 @@ export default function AIStoryGenerator({
     pacing,
     endingType,
     plotTwists,
+    includeFlashbacks,
     timePeriod,
     locationType,
     worldBuildingDepth,
@@ -655,6 +662,7 @@ The air crackled with energy as the first shot was fired...`;
                               setPacing(recoveredDraft.pacing);
                               setEndingType(recoveredDraft.endingType);
                               setPlotTwists(recoveredDraft.plotTwists);
+                              setIncludeFlashbacks(recoveredDraft.includeFlashbacks);
                               setTimePeriod(recoveredDraft.timePeriod);
                               setLocationType(recoveredDraft.locationType);
                               setWorldBuildingDepth(recoveredDraft.worldBuildingDepth);

@@ -257,20 +257,30 @@ export default function CreateStoryPage() {
 
   // Autosave logic with debounce
   useEffect(() => {
-    if (!storyData.content.trim()) return;
+    const hasAnyDraftData =
+      storyData.title.trim() ||
+      storyData.description.trim() ||
+      storyData.genre.trim() ||
+      storyData.content.trim() ||
+      storyData.coverImage;
+    if (!hasAnyDraftData) return;
 
-    const timeout = setTimeout(() => {
-      const draft: StoryDraft = {
-        title: storyData.title,
-        description: storyData.description,
-        genre: storyData.genre,
-        content: storyData.content,
-        coverImageName: storyData.coverImage?.name,
-        updatedAt: Date.now(),
-        version: 1,
-      };
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-    }, 1000); // autosave every 1s after typing stops
+     const timeout = setTimeout(() => {
+       const draft: StoryDraft = {
+         title: storyData.title,
+         description: storyData.description,
+         genre: storyData.genre,
+         content: storyData.content,
+         coverImageName: storyData.coverImage?.name,
+         updatedAt: Date.now(),
+         version: 1,
+       };
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      } catch (error) {
+        console.warn('Autosave failed:', error);
+      }
+     }, 1000); // autosave every 1s after typing stops
 
     return () => clearTimeout(timeout);
   }, [storyData.title, storyData.description, storyData.genre, storyData.content, storyData.coverImage]);
