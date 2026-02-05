@@ -20,8 +20,8 @@ experience.
 
 ## Reporting a Vulnerability
 
-1. **GitHub Private Reporting (Recommended):** Please report vulnerabilities via the **[Security Tab](https://github.com/mantejarora/groqtales/security/advisories)** on GitHub. This is the most secure way to reach us.
-2. **Contact Us Privately:** If you cannot use GitHub, email [mantejarora@gmail.com](mailto:mantejarora@gmail.com). We recommend using a PGP key for sensitive details.
+1. **GitHub Private Reporting (Recommended):** Please report vulnerabilities via the **[Security Tab](https://github.com/IndieHub25/GroqTales/security/advisories)** on GitHub. This is the most secure way to reach us.
+2. **Contact Us Privately:** If you cannot use GitHub, email [mantejarora@gmail.com](mailto:mantejarora@gmail.com). For highly sensitive details, you may request our PGP public key via email before sending the full report.
 
 ## Scope & AI Guidelines
 
@@ -30,6 +30,7 @@ We welcome reports regarding our backend, smart contracts, and AI implementation
 ### AI Security Scope (OWASP Top 10 for LLMs)
 * **Prompt Injection:** Bypassing system prompts to access internal logic or user data.
 * **Insecure Output Handling:** AI-generated content that executes malicious scripts (XSS).
+* **Training Data Poisoning:** Malicious manipulation of training data or fine-tuning processes to introduce backdoors or biases.
 * **Non-Security Issues:** AI "Hallucinations" (making things up) or generic "jailbreaks" that do not lead to data exposure are considered **Out-of-Scope**.
 
 ### Severity Classification (Updated)
@@ -43,7 +44,7 @@ We welcome reports regarding our backend, smart contracts, and AI implementation
 ## Vulnerability Handling Process
 
 1. Report received (private email)
-2. Triage & severity classification (see table below) – target within 48h
+2. Triage & severity classification (see "Severity Classification" under Scope & AI Guidelines) – target within 48h
 3. Reproduction + impact assessment
 4. Patch development on private branch
 5. Optional coordinated disclosure window (up to 30 days for High/Critical if complex)
