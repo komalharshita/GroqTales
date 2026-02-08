@@ -51,11 +51,6 @@ const options = {
         },
       },
     },
-    securty: [
-      {
-        BearerAuth: [],
-      },
-    ],
   },
   apis: ['./routes/*.js', './backend.js'],
 };
@@ -66,6 +61,9 @@ app.use(
   '/api-docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
+      withCredentials: true,
+    },
     customCss: `
       .curl-command { display: none !important; }
       .request-url { display: none !important; }
