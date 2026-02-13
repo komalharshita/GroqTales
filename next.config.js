@@ -159,7 +159,7 @@ const nextConfig = {
 
   // TypeScript configuration
   typescript: {
-    ignoreBuildErrors:'true',
+    ignoreBuildErrors:true,
   },
 
   // ESLint configuration
