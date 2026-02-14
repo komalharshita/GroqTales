@@ -27,13 +27,72 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 
-// Lazy load heavy animation libraries
-const motion = { 
-  div: React.forwardRef((props: any, ref) => <div {...props} ref={ref} />),
-  motion: { div: React.forwardRef((props: any, ref) => <div {...props} ref={ref} />) }
+// Lightweight animation fallbacks with optional framer-motion integration.
+// These avoid runtime errors when `framer-motion` isn't installed or during SSR,
+// but will use real `framer-motion` components if the package is available.
+
+const MotionDiv = React.forwardRef(function MotionDiv(props: any, ref: any) {
+  const [Comp, setComp] = useState<any>(() => (innerProps: any) => <div {...innerProps} ref={ref} />);
+
+  useEffect(() => {
+    let mounted = true;
+    import('framer-motion')
+      .then((mod) => {
+        if (!mounted) return;
+        if (mod && mod.motion && mod.motion.div) {
+          setComp(() => mod.motion.div);
+        }
+      })
+      .catch(() => {
+        // framer-motion not available — keep fallback
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return <Comp {...props} ref={ref} />;
+});
+
+const motion = { div: MotionDiv, motion: { div: MotionDiv } };
+
+const AnimatePresence = ({ children, ...rest }: { children: React.ReactNode } & any) => {
+  const [Comp, setComp] = useState<any>(() => ({ children }: any) => <>{children}</>);
+
+  useEffect(() => {
+    let mounted = true;
+    import('framer-motion')
+      .then((mod) => {
+        if (!mounted) return;
+        if (mod && mod.AnimatePresence) setComp(() => mod.AnimatePresence);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return <Comp {...rest}>{children}</Comp>;
 };
-const AnimatePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>;
-const useReducedMotion = () => false;
+
+function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduced(Boolean(mq.matches));
+    update();
+    if (mq.addEventListener) mq.addEventListener('change', update);
+    else mq.addListener(update);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', update);
+      else mq.removeListener(update);
+    };
+  }, []);
+
+  return reduced;
+}
 
 // Dynamically import icons to reduce bundle
 const IconsLoadable = dynamic(() => import('lucide-react').then(mod => ({
