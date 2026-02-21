@@ -2142,10 +2142,11 @@ export default function AIStoryGenerator({
                         onClick={() => {
                           if (generatedStory) copyToClipboard(generatedStory);
                         }}
+                        disabled={!generatedStory}
                         className="font-bangers text-xl border-4 border-black bg-blue-400 hover:bg-blue-500 text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
                       >
                         {isCopied ? (
-                          <><Check className="mr-2 h-5 w-5" />✅ COPIED!</>
+                          <><Check className="mr-2 h-5 w-5" /> COPIED!</>
                         ) : (
                           <><Copy className="mr-2 h-5 w-5" />COPY STORY</>
                         )}

@@ -146,15 +146,15 @@ export function StoryGenerator() {
       textarea.style.position = 'fixed';
       textarea.style.opacity = '0';
       document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      const success = document.execCommand('copy');
-      document.body.removeChild(textarea);
-      if (success) {
+      try {
+        textarea.focus();
+        textarea.select();
+        const success = document.execCommand('copy');
+        if (!success) throw new Error('execCommand failed');
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
-      } else {
-        throw new Error('execCommand failed');
+      } finally {
+        document.body.removeChild(textarea);
       }
     } catch {
       toast({
@@ -225,7 +225,7 @@ export function StoryGenerator() {
                 onClick={() => copyToClipboard(generatedStory)}
               >
                 {isCopied ? (
-                  <><Check className="mr-1 h-4 w-4" />✅ Copied!</>
+                  <><Check className="mr-1 h-4 w-4" />Copied!</>
                 ) : (
                   <><Copy className="mr-1 h-4 w-4" />Copy Story</>
                 )}
