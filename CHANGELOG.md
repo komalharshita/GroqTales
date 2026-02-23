@@ -11,8 +11,20 @@ Active full support: 1.3.5 (latest), 1.3.0 (previous). Security maintenance (cri
 
 ## [1.3.5] - 2026-02-21
 
+### Major Architecture Change: Supabase Migration
+
+- **Database Engine**: Fully migrated from MongoDB to PostgreSQL via Supabase.
+- **Authentication**: Replaced NextAuth.js with Supabase Auth (SSR clients + middleware).
+- **Core Models Refactored**:
+  - `stories` & `user_interactions` mapped correctly for the feed.
+  - `royalty_configs`, `creator_earnings`, and `royalty_transactions` fully off-chain tracked via Supabase.
+- **Legacy Removal**: Safely commented out `Mongoose` schemas and active connections to prevent build collisions while keeping types intact.
+- **Improved Data Integrity**: Shifted to explicit Row Level Security (RLS) rules and robust primary/foreign key mappings (UUID).
+- **Dependency Fixes**: Fixed broken 404 package dependencies (e.g. `concat-stream` github link) preventing fresh installations.
+
 ### Fixed
 
+- **Vercel Deployment Crash (npm ci)**: Switched Vercel install command from `npm ci` to `npm install --legacy-peer-deps` permanently due to persistent ERESOLVE and missing dependency errors in lockfile synchronization within the Vercel build environment.
 - **Vercel Deployment Crash (Spline 3D)**: Added `transpilePackages` for `@splinetool/react-spline` and `@splinetool/runtime` in `next.config.js` so Next.js properly compiles Spline's class inheritance chain through its SWC pipeline instead of treating them as pre-compiled externals
 - **Resilient Spline Loading**: Added `.catch()` fallback to the Spline dynamic import in `app/page.tsx` — if the 3D model fails to load in any environment, the page gracefully degrades to the gradient background instead of crashing
 - **Featured Creators Validation**: `components/featured-creators.tsx` now validates creator-shaped objects (requires `username`/`followersCount`/`profileImage`) instead of fabricating metadata; non-matching items are filtered out
@@ -498,10 +510,9 @@ Codebase integrity restoration and build stabilization after widespread comment 
 ### Files Affected (Representative)
 
 `components/ui/{chart.tsx,pagination.tsx,skeleton.tsx,calendar.tsx,carousel.tsx}`
-`components/story-summary-backup.tsx`
 `hooks/{use-groq.ts,use-monad.ts,use-story-analysis.ts,use-story-summary.ts}`
 `src/blockchain/onchain-agent/app/hooks/useAgent.ts`
-`lib/{api-utils.ts,constants.ts,logger-broken.ts,mock-data-backup.ts,transaction-components.ts}`
+`lib/{api-utils.ts,constants.ts,transaction-components.ts}`
 `app/stories/page.tsx`
 `src/blockchain/onchain-agent/app/api/agent/{route.new.ts,create-agent.ts,prepare-agentkit.ts}`
 

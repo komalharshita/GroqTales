@@ -1,7 +1,6 @@
 //import React from 'react';
 import { Metadata } from 'next';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { createClient } from '@/lib/supabase/server';
 import SettingsClient from '@/components/settings/settings-client';
 // import { Button } from '@/components/ui/button';
 // import {
@@ -76,10 +75,21 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsPage() {
-  const session = await getServerSession(authOptions);
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
 
-  if (!session) redirect('/login');
+  if (!session || !session.user) {
+    redirect('/');
+  }
 
+  // Create mock user combining Supabase info
+  const user = {
+    name: session.user.user_metadata?.name || 'User',
+    email: session.user.email,
+    image: session.user.user_metadata?.avatar_url,
+    walletAddress: session.user.user_metadata?.wallet || session.user.email
+  };
+  
   return <SettingsClient />;
 }
 // return (
