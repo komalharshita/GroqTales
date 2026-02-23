@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { createClient } from '@/lib/supabase/client';
 
 interface CommunityPost {
   id: string; author: { id: string; name: string; avatar: string; verified?: boolean; level: number; };
@@ -111,9 +112,18 @@ export default function CommunityFeed() {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all'|'stories'|'discussions'>('all');
+  const [profile, setProfile] = useState<any>(null);
   const { toast } = useToast();
+  const supabase = React.useMemo(() => createClient(), []);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        supabase.from('profiles').select('*').eq('id', session.user.id).single()
+          .then(({ data }) => setProfile(data || session.user));
+      }
+    });
+
     fetch('/api/feed?limit=20')
       .then(r => {
         if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
@@ -132,13 +142,13 @@ export default function CommunityFeed() {
           },
           content: story.summary || story.content || `Check out this latest community addition: ${story.title || 'Untitled'}`,
           title: story.title,
-          genre: Array.isArray(story.tags) ? story.tags : (story.tags ? [story.tags] : (Array.isArray(story.genre) ? story.genre : (story.genre ? [story.genre] : ['General']))),
+          genre: Array.isArray(story.genre) ? story.genre : (story.genre ? [story.genre] : (Array.isArray(story.tags) ? story.tags : (story.tags ? [story.tags] : ['General']))),
           tags: Array.isArray(story.tags) ? story.tags : (story.tags ? [story.tags] : (Array.isArray(story.genre) ? story.genre : (story.genre ? [story.genre] : ['General']))),
           timestamp: new Date(story.created_at || story.createdAt || Date.now()),
           likes: story.likesCount || story.likes_count || story.likes || 0,
           comments: story.commentsCount || story.comments_count || story.comments || 0,
           shares: 0,
-          type: 'story',
+          type: story.type || story.kind || 'story',
         }));
         setPosts(mapped);
         setLoading(false);
@@ -224,32 +234,32 @@ export default function CommunityFeed() {
                 <div className="flex items-center gap-4 mb-6">
                   <div className="relative">
                     <Avatar className="h-16 w-16 border-2 border-emerald-500">
-                      <AvatarImage src="https://api.dicebear.com/7.x/personas/svg?seed=You" />
-                      <AvatarFallback>U</AvatarFallback>
+                      <AvatarImage src={`https://api.dicebear.com/7.x/personas/svg?seed=${profile?.username || 'You'}`} />
+                      <AvatarFallback>{profile?.username ? profile.username[0].toUpperCase() : 'U'}</AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-2 -right-2 bg-black text-amber-400 font-bold border-2 border-amber-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">
-                      12
+                      {profile?.level || 1}
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg text-white">Guest Creator</h3>
-                    <p className="text-sm text-emerald-400">Novice Scribe</p>
+                    <h3 className="font-bold text-lg text-white">{profile?.username || 'Guest Creator'}</h3>
+                    <p className="text-sm text-emerald-400">{profile?.rank || 'Novice Scribe'}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs font-semibold text-white/50">
-                    <span>XP</span> <span>1,240 / 2,000</span>
+                    <span>XP</span> <span>{(profile?.xp || 0).toLocaleString()} / {(profile?.nextLevelXp || 2000).toLocaleString()}</span>
                   </div>
                   <div className="w-full bg-black/50 rounded-full h-3 border border-white/10 overflow-hidden relative">
                     <motion.div 
-                      initial={{ width: 0 }} animate={{ width: '62%' }} transition={{ duration: 1, delay: 0.5 }}
+                      initial={{ width: 0 }} animate={{ width: `${Math.min(100, ((profile?.xp || 0) / (profile?.nextLevelXp || 2000)) * 100)}%` }} transition={{ duration: 1, delay: 0.5 }}
                       className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 relative"
                     >
                       <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12" />
                     </motion.div>
                   </div>
-                  <p className="text-center text-[10px] text-white/40 pt-1">760 XP to Level 13</p>
+                  <p className="text-center text-[10px] text-white/40 pt-1">{(profile?.nextLevelXp || 2000) - (profile?.xp || 0)} XP to Level {(profile?.level || 1) + 1}</p>
                 </div>
               </div>
             </motion.div>

@@ -14,7 +14,7 @@ import { createClient } from '@/lib/supabase/client';
 import WalletConnect from '@/components/wallet-connect';
 
 export default function SignInPage() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -25,14 +25,41 @@ export default function SignInPage() {
   const { toast } = useToast();
   const supabase = createClient();
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!password || password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters');
+      return;
+    }
+
+    if (!identifier) {
+      setErrorMsg('Please enter your email or username');
+      return;
+    }
+
     setLoading(true);
     setErrorMsg('');
     
     try {
+      let loginEmail = identifier;
+
+      // If the identifier doesn't have an '@', assume it's a username and look it up
+      if (!identifier.includes('@')) {
+        const { data, error: lookupError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', identifier)
+          .single();
+          
+        if (lookupError || !data || !data.email) {
+          throw new Error('Username not found or has no associated email');
+        }
+        loginEmail = data.email;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: loginEmail,
         password,
       });
 
@@ -124,28 +151,28 @@ export default function SignInPage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className={`absolute w-32 h-32 blur-[60px] rounded-full pointer-events-none transition-all duration-700
-                  ${focusedField === 'email' ? 'top-10 left-10 bg-blue-500/20' : 'bottom-32 right-10 bg-purple-500/20'}
+                  ${focusedField === 'identifier' ? 'top-10 left-10 bg-blue-500/20' : 'bottom-32 right-10 bg-purple-500/20'}
                 `}
               />
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleEmailSignIn} className="space-y-4 relative z-10">
+          <form onSubmit={handleSignIn} className="space-y-4 relative z-10">
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Email Address</Label>
-              <div className={`relative flex items-center transition-all duration-300 rounded-2xl border ${focusedField === 'email' ? 'border-white/40 bg-white/10' : 'border-white/10 bg-white/5'}`}>
-                <Mail className={`absolute left-4 w-4 h-4 transition-colors duration-300 ${focusedField === 'email' ? 'text-white' : 'text-white/40'}`} />
+              <Label htmlFor="identifier" className="text-xs font-semibold uppercase tracking-wider text-white/60 ml-1">Email or Username</Label>
+              <div className={`relative flex items-center transition-all duration-300 rounded-2xl border ${focusedField === 'identifier' ? 'border-white/40 bg-white/10' : 'border-white/10 bg-white/5'}`}>
+                <Mail className={`absolute left-4 w-4 h-4 transition-colors duration-300 ${focusedField === 'identifier' ? 'text-white' : 'text-white/40'}`} />
                 <Input 
-                  id="email" 
-                  type="email" 
+                  id="identifier" 
+                  type="text" 
                   required 
-                  value={email}
+                  value={identifier}
                   disabled={loading || success}
-                  onFocus={() => setFocusedField('email')}
+                  onFocus={() => setFocusedField('identifier')}
                   onBlur={() => setFocusedField(null)}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   className="w-full h-12 pl-11 pr-4 bg-transparent border-none text-white placeholder:text-white/30 focus-visible:ring-0 shadow-none text-sm"
-                  placeholder="Enter your email"
+                  placeholder="Enter your email or username"
                 />
               </div>
             </div>

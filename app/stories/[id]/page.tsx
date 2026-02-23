@@ -266,7 +266,7 @@ export default function StoryPage({ params }: { params: { id: string } }) {
                   <span className="font-semibold text-lg">{story.author}</span>
                   <VerifiedIcon className="h-4 w-4 text-emerald-400" />
                 </div>
-                <div className="text-sm text-white/50">{new Date().toLocaleDateString()}</div>
+                <div className="text-sm text-white/50">{story?.createdAt ? new Date(story.createdAt).toLocaleDateString() : '—'}</div>
               </div>
             </div>
 
@@ -332,7 +332,7 @@ export default function StoryPage({ params }: { params: { id: string } }) {
                   <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm space-y-6">
                     <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Sparkles className="text-blue-400" /> Generation Info</h3>
                     <div className="flex justify-between items-center py-3 border-b border-white/5"><span className="text-white/50">Engine</span><span className="font-medium">Groq LLM</span></div>
-                    <div className="flex justify-between items-center py-3 border-b border-white/5"><span className="text-white/50">Mint Date</span><span className="font-medium">{new Date().toLocaleDateString()}</span></div>
+                    <div className="flex justify-between items-center py-3 border-b border-white/5"><span className="text-white/50">Mint Date</span><span className="font-medium">{story?.mintDate ? new Date(story.mintDate).toLocaleDateString() : '—'}</span></div>
                     <div className="flex justify-between items-center py-3 border-b border-white/5"><span className="text-white/50">Content Rating</span><span className="font-medium bg-white/10 px-2 py-1 rounded text-xs">Safe</span></div>
                     
                     <div className="mt-8 pt-8 border-t border-white/10">

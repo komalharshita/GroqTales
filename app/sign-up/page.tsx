@@ -24,6 +24,7 @@ export default function SignUpPage() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [favoriteGenre, setFavoriteGenre] = useState('');
@@ -41,6 +42,18 @@ export default function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
+    
+    if (password !== confirmPassword) {
+      setErrorMsg('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters');
+      setLoading(false);
+      return;
+    }
     
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -302,6 +315,21 @@ export default function SignUpPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full h-11 pl-11 pr-4 bg-transparent border-none text-white placeholder:text-white/30 focus-visible:ring-0 shadow-none text-sm"
                         placeholder="Min 8 characters"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="confirmPassword" className="text-[11px] font-semibold uppercase tracking-wider text-white/60 ml-1">Confirm Password</Label>
+                    <div className={`relative flex items-center transition-all duration-300 rounded-xl border ${focusedField === 'confirmPassword' ? 'border-white/40 bg-white/10' : 'border-white/10 bg-white/5'}`}>
+                      <Lock className={`absolute left-4 w-4 h-4 transition-colors duration-300 ${focusedField === 'confirmPassword' ? 'text-white' : 'text-white/40'}`} />
+                      <Input 
+                        id="confirmPassword" type="password" required minLength={8} value={confirmPassword}
+                        disabled={loading || success}
+                        onFocus={() => setFocusedField('confirmPassword')} onBlur={() => setFocusedField(null)}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full h-11 pl-11 pr-4 bg-transparent border-none text-white placeholder:text-white/30 focus-visible:ring-0 shadow-none text-sm"
+                        placeholder="Retype password"
                       />
                     </div>
                   </div>
