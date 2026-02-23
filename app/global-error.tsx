@@ -1,5 +1,8 @@
 'use client';
 
+import { useEffect } from "react";
+import "./globals.css";
+
 export default function GlobalError({
   error,
   reset,
@@ -7,8 +10,19 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+
+  // Log critical application-level errors
+  useEffect(() => {
+    console.error("Global application error:", error);
+  }, [error]);
+
   return (
     <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Application Error</title>
+      </head>
       <body className="flex min-h-screen items-center justify-center bg-background text-foreground px-6 text-center">
         <div>
           <h1 className="text-4xl font-bold mb-4">
