@@ -10,6 +10,8 @@ export function GlobalLoadingWrapper({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const isInitialMount = React.useRef(true);
+
   // Initial load effect
   useEffect(() => {
     let mounted = true;
@@ -24,20 +26,22 @@ export function GlobalLoadingWrapper({ children }: { children: React.ReactNode }
 
   // Route change effect
   useEffect(() => {
-    let mounted = true;
-    let timer: ReturnType<typeof setTimeout>;
-    // Don't trigger if it's currently already loading from mount
-    if (!loading) {
-      setLoading(true);
-      timer = setTimeout(() => {
-        if (mounted) setLoading(false);
-      }, 1000);
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
     }
+
+    let mounted = true;
+    setLoading(true);
+    const timer = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 1000);
+
     return () => {
       mounted = false;
-      if (timer) clearTimeout(timer);
+      clearTimeout(timer);
     };
-  }, [pathname, searchParams, loading]);
+  }, [pathname, searchParams]);
 
   return (
     <>
