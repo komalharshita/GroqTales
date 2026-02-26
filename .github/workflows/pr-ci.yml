@@ -84,10 +84,10 @@ jobs:
 
       - name: Verify Build Output Exists
         run: |
-          if [ -d ".vercel/output/static" ]; then
-            echo " Build output directory exists"
-            du -sh .vercel/output/static
+          if [ -d "out" ]; then
+            echo "✅ Build output directory exists"
+            du -sh out
           else
-            echo " Build output directory not found!"
+            echo "❌ Build output directory not found!"
             exit 1
           fi

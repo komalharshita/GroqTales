@@ -1,0 +1,4 @@
+# Cloudflare Pages SPA fallback
+# All paths that don't match a static file should serve index.html
+# so client-side routing (Next.js App Router) handles them.
+/*  /index.html  200

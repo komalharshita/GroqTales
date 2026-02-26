@@ -67,6 +67,8 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
+const isCfBuild = process.env.NEXT_PUBLIC_BUILD_MODE === 'true';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Core settings
@@ -83,7 +85,7 @@ const nextConfig = {
 
   // Image optimization
   images: {
-    unoptimized: false,
+    unoptimized: isCfBuild, // Static export cannot use Next.js Image Optimization
     remotePatterns: [
       {
         protocol: 'https',
@@ -155,32 +157,22 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // Security headers
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-        ],
-      },
-    ];
-  },
+  // Security headers (not supported with output: 'export', use public/_headers for CF)
+  ...(isCfBuild ? {} : {
+    async headers() {
+      return [
+        {
+          source: '/(.*)',
+          headers: [
+            { key: 'X-Frame-Options', value: 'DENY' },
+            { key: 'X-Content-Type-Options', value: 'nosniff' },
+            { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+            { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          ],
+        },
+      ];
+    },
+  }),
 
   // Webpack configuration
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
@@ -219,31 +211,26 @@ const nextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
 
-  // Redirects and rewrites
-  async redirects() {
-    return [
-      {
-        source: '/home',
-        destination: '/',
-        permanent: true,
-      },
-    ];
-  },
-  async rewrites() {
-    const envUrl = process.env.NEXT_PUBLIC_API_URL;
-    const apiUrl = (envUrl && envUrl.startsWith('http'))
-      ? envUrl
-      : 'http://localhost:3001';
+  // Redirects and rewrites (not supported with output: 'export')
+  ...(isCfBuild ? {} : {
+    async redirects() {
+      return [
+        { source: '/home', destination: '/', permanent: true },
+      ];
+    },
+    async rewrites() {
+      const envUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = (envUrl && envUrl.startsWith('http')) ? envUrl : 'http://localhost:3001';
+      return [
+        { source: '/api/:path*', destination: `${apiUrl}/api/:path*` },
+      ];
+    },
+  }),
 
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${apiUrl}/api/:path*`,
-      },
-    ];
-  },
-  // Output configuration for static export if needed
-  output: process.env.BUILD_STANDALONE === 'true' ? 'standalone' : undefined,
+  // Output configuration
+  // 'export' = static HTML/JS/CSS for Cloudflare Pages (no server needed)
+  // 'standalone' = self-contained Node.js server for Render
+  output: isCfBuild ? 'export' : (process.env.BUILD_STANDALONE === 'true' ? 'standalone' : undefined),
 
   // Experimental features
   experimental: {

@@ -54,7 +54,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # Branch-based preview URL: pr-<number>.groqtales.pages.dev
-          command: pages deploy .vercel/output/static --project-name=groqtales --branch=pr-${{ github.event.pull_request.number }}
+          command: pages deploy out --project-name=groqtales --branch=pr-${{ github.event.pull_request.number }}
 
       - name: Comment Preview URL on PR
         uses: actions/github-script@v7
