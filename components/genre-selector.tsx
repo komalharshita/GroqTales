@@ -1,5 +1,3 @@
-'use client';
-
 // No imported icons to prevent Next.js static build errors
 import Link from 'next/link';
 import * as React from 'react';
